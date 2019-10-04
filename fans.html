@@ -82,11 +82,13 @@
         <label for="username" class="mt-3">Username:</label>
         <input type="text" class="form-control col-md-3" id='username'>
         <div class="row comment-form py-4">
-            <textarea class="form-control col-md-6" cols="30" rows="10" placeholder="Write an appeal" id='textarea'></textarea>
+            <textarea class="form-control col-md-6" cols="30" rows="10" placeholder="Write an appeal"
+                      id='textarea'></textarea>
             <div class="col-md-6 d-flex align-items-end">
                 <button id="submit-btn" class="btn btn-primary btn-lg mt-3 mt-lg-0">Send</button>
             </div>
-            <button id='clear' class="btn mt-2 mt-md-0 btn-danger my-2 mt-2">Clear</button>
+            <button id='clear' class="btn mt-2 mt-md-0 mt-2 btn-danger my-2 mt-2">Clear</button>
+            <button id='clearIndexed' class="btn mt-2 ml-3 mt-2 mt-md-0 btn-danger my-2 mt-2">Clear IndexedDB</button>
         </div>
     </div>
 </main>
@@ -110,129 +112,6 @@
         integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
         crossorigin="anonymous"></script>
 
-<script>
-    
-
-
-    const createAppealBlock = () => {
-        const appealBlock = document.createElement('div');
-        appealBlock.classList.add('comment','py-4','border-bottom');
-        return appealBlock;
-    }
-
-    const createAppealText = (text) => {
-        const childText = document.createElement('p');
-        childText.innerHTML = text;
-        return childText;
-    }
-
-    const createAppealDate = (date) => {
-        const appealDate = document.createElement('span');
-        appealDate.innerText = date;
-        return appealDate;
-    }
-
-    const createAppealUser = (user) => {
-        const appealAuthor = document.createElement('b');
-        appealAuthor.innerText = user;
-        appealAuthor.classList.add('float-right');
-        return appealAuthor;
-
-    }
-
-    const combineAppealData = (appealBlock, text, date, user) => {
-        appealBlock.appendChild(text);
-        appealBlock.appendChild(date);
-        appealBlock.appendChild(user);
-        appeals.appendChild(appealBlock);
-    }
-
-    const getDate = () => {
-        var today = new Date();
-        var dd = String(today.getDate()).padStart(2, '0');
-        var mm = String(today.getMonth() + 1).padStart(2, '0');
-        var yyyy = today.getFullYear();
-
-        today = dd + '.' + mm + '.' + yyyy;
-        return today;
-    }
-
-    const getUsername = () => {
-        if (username.value != ''){
-            showAlert();
-            return username.value;
-        }
-        showAlert('Username is empty');
-    }
-
-    const showAlert = (error) => {
-        alert.innerText = error;
-        alert.classList.remove('d-none');
-    }
-    
-    const hideAlert = () => {
-        alert.classList.add('d-none');
-    }
-
-    const validate = () => {
-        if (username.value != '' && textarea.value != '' && username.value.trim() !== '' && textarea.value.trim() !== '')
-        {
-            hideAlert();
-            return true;
-        }
-        showAlert('Input is incorrect');
-        return false;
-    }
-
-    const clearInputs = () => {
-        textarea.value = '';
-        username.value = '';
-    }
-    const isOnline = () => {
-        return window.navigator.onLine;
-    }
-
-    let appealsStorage = JSON.parse(localStorage.getItem('appeals')) || [];
-
-    const button = document.getElementById('submit-btn');
-    const appeals = document.getElementById('appeals');
-    const textarea = document.getElementById('textarea');
-    const username = document.getElementById('username');
-    const alert = document.getElementById('alert');
-
-    const createAppealData = () => {
-        if (isOnline()){
-            console.log('Call to server');
-        } else {
-            const appeal = {text: textarea.value, date: getDate(), user: username.value}
-            appealsStorage.push(appeal);
-            localStorage.setItem('appeals', JSON.stringify(appealsStorage));
-        }
-        if (validate()) {
-            clearInputs();
-        }
-    }
-
-    button.onclick = () => createAppealData();
-
-    const createAppeal = (item) => {
-        const appealBlock = createAppealBlock();
-        const text = createAppealText(item.text);
-        const date = createAppealDate(item.date);
-        const user = createAppealUser(item.user);
-        combineAppealData(appealBlock, text, date, user);
-    }
-
-    const appealsData = JSON.parse(localStorage.getItem('appeals')) || [];
-
-
-    if(isOnline()) {
-        appealsData.map((item) => createAppeal(item));
-    }
-
-    const clear = document.getElementById('clear');
-    clear.onclick = () => localStorage.removeItem('appeals');
-
-</script>
+<script src="fans.js"></script>
 </body>
 </html>
