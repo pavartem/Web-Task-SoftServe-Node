@@ -41,36 +41,6 @@ const getDate = () => {
     return today;
 };
 
-const getUsername = () => {
-    if (username.value != '') {
-        showAlert();
-        return username.value;
-    }
-    showAlert('Username is empty');
-};
-
-const showAlert = (error) => {
-    alert.innerText = error;
-    alert.classList.remove('d-none');
-};
-
-const hideAlert = () => {
-    alert.classList.add('d-none');
-};
-
-const validate = () => {
-    if (username.value != '' && textarea.value != '' && username.value.trim() !== '' && textarea.value.trim() !== '') {
-        hideAlert();
-        return true;
-    }
-    showAlert('Input is incorrect');
-    return false;
-};
-
-const clearInputs = () => {
-    textarea.value = '';
-    username.value = '';
-};
 
 let useLocalStorage = false;
 
@@ -176,7 +146,7 @@ class FansDefaultStorage extends DefaultStorage {
         while (!this.isReady) {
             await sleep(50);
         }
-        
+
         const transaction = this.db.transaction([this.name], 'readwrite');
         transaction.objectStore(this.name).add(data);
     }
@@ -196,15 +166,32 @@ const fans = new FansDefaultStorage('fans');
 
 
 button.onclick = () => {
-    if (useLocalStorage) {
-        createAppealData();
+    if (isOnline()) {
+        fetch('http://localhost:8000/appeals/add', {
+            method: 'post',
+            headers: {
+                'Accept': 'application/json, text/plain, */*',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({username: username.value, text: textarea.value, date: getDate()})
+        }).then(res => res.json())
+            .then(res => createAppeal(res));
+
     } else {
-        fans.add({user: username.value, text: textarea.value, date: getDate()});
+
+        if (useLocalStorage) {
+            createAppealData();
+        } else {
+            fans.add({user: username.value, text: textarea.value, date: getDate()});
+        }
     }
 };
 const appealsData = JSON.parse(localStorage.getItem('appeals')) || [];
 
 if (isOnline()) {
+    fetch('http://localhost:8000/appeals')
+        .then(res => res.json())
+        .then(res => res.map((item) => createAppeal(item)));
     if (useLocalStorage) {
         appealsData.map((item) => createAppeal(item));
     } else {
@@ -222,3 +209,10 @@ clear.onclick = () => localStorage.removeItem('appeals');
 
 const clearIndexed = document.getElementById('clearIndexed');
 clearIndexed.onclick = () => fans.clear();
+
+const clearDB = document.getElementById('clearDB');
+clearDB.onclick = () => {
+    fetch('http://localhost:8000/appeals', {method: 'delete'})
+        .then(res => res.json())
+        .then(res => console.log(res));
+};
